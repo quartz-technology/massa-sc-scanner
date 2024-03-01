@@ -1,0 +1,19 @@
+{
+  "name": "@quartz-technology/massa-sc-scanner",
+  "version": "0.0.1",
+  "description": "Massa smart contract bytecode scanner",
+  "repository": "git@github.com:quartz-technology/massa-sc-scanner.git",
+  "author": "Luca Georges Francois <luca@quartz.technology>",
+  "license": "Apache-2.0",
+  "contributors": [
+    "Luca Georges Francois <luca@quartz.technology>",
+    "0xtekgrinder <0xtekgrinder@protonmail.com>"
+  ],
+  "scripts": {
+    "build": "yarn tsc"
+  },
+  "packageManager": "yarn@4.1.0",
+  "devDependencies": {
+    "typescript": "^5.3.3"
+  }
+}
