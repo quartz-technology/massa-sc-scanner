@@ -1,0 +1,13 @@
+[package]
+name = "massa-sc-scanner"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+anyhow = "1.0.80"
+wasmparser = "0.201.0"
+wasmprinter = "0.201.0"
+wast = "201.0.0"
+wat = "1.201.0"
