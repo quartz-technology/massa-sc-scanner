@@ -1,70 +1,59 @@
 extern crate wasm_bindgen;
 
-use std::vec;
 use std::u8;
+use std::vec;
 use wasmprinter::print_bytes;
 
 use wasm_bindgen::prelude::*;
 use wasmparser::*;
 
 #[wasm_bindgen]
-extern {
-    fn alert(s: &str);
+pub struct Scanner {
+    wast: Vec<u8>,
 }
 
 #[wasm_bindgen]
-pub fn greet() {
-    alert("Hello, World!");
-}
+impl Scanner {
+    #[wasm_bindgen(constructor)]
+    pub fn new(input: Vec<u8>) -> Result<Scanner, JsError> {
+        let wat = print_bytes(input.clone()).map_err(|e| JsError::new(&e.to_string()))?;
+        let wast = wat::parse_str(wat).map_err(|e| JsError::new(&e.to_string()))?;
 
-#[wasm_bindgen]
-pub fn scan(input: &[u8]) {
-    // let wat = print_file("index.wasm").unwrap();
-    // let wat2 = wat::parse_str(&wat).unwrap();
+        Ok(Scanner { wast })
+    }
 
-    let wat = print_bytes(input).unwrap();
-    let _wat2 = wat::parse_str(&wat).unwrap();
-}
+    pub fn exported_function_names(&self) -> Result<vec::Vec<String>, JsError> {
+        let mut exported_function_names: Vec<String> = Vec::new();
 
-#[wasm_bindgen]
-pub fn scan_host_functions(_input: &[u8]) {
-    alert("Scanning host functions...");
-}
+        // Iterate through payloads.
+        for payload in Parser::new(0).parse_all(&self.wast) {
+            let payload = payload.map_err(|e| JsError::new(&e.to_string()))?;
 
-#[wasm_bindgen]
-pub fn scan_exported_function_names(_input: &[u8]) -> Result<vec::Vec<String>, JsValue> {
-    let mut function_names: vec::Vec<String> = vec![];
+            if let Payload::ExportSection(export_section) = payload {
+                // Process each export entry.
+                for export in export_section {
+                    let export = export.map_err(|e| JsError::new(&e.to_string()))?;
+                    let first_two_chars: String = export.name.chars().take(2).collect();
 
-    let wat = print_bytes(_input).unwrap();
-    let wat2 = wat::parse_str(&wat).unwrap();
-
-    for payload in Parser::new(0).parse_all(&wat2) {
-        match payload {
-            Ok(p) => {
-                match p {
-                    Payload::ExportSection(export_section) => {
-                        for result in export_section {
-                            match result {
-                                Ok(export) => {
-                                    let first_two_chars: String = export.name.chars().take(2).collect();
-                                    if export.kind == ExternalKind::Func && first_two_chars != "__" {
-                                        function_names.push(export.name.to_string());
-                                    }
-                                }
-                                Err(e) => return Err(JsValue::from_str(&e.to_string())),
-                            }
-                        }
+                    if export.kind == ExternalKind::Func && first_two_chars != "__" {
+                        exported_function_names.push(export.name.to_string());
                     }
-                    _ => {}
                 }
             }
-            Err(e) => return Err(JsValue::from_str(&e.to_string())),
         }
-    }
-    Ok(function_names)
-}
 
-#[wasm_bindgen]
-pub fn scan_constants(_input: &[u8]) {
-    alert("Scanning constants...");
+        Ok(exported_function_names)
+    }
+
+    pub fn host_functions(&self) -> Result<vec::Vec<String>, JsError> {
+        let mut host_functions: Vec<String> = Vec::new();
+
+        Ok(host_functions)
+    }
+
+    pub fn constants(&self) -> Result<vec::Vec<String>, JsError> {
+        let mut constants: Vec<String> = Vec::new();
+
+        Ok(constants)
+    }
 }
