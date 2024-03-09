@@ -1,0 +1,5 @@
+{
+    "rust-analyzer.linkedProjects": [
+        "./packages/scanner-core/Cargo.toml"
+    ]
+}
