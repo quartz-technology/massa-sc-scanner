@@ -48,12 +48,25 @@ impl Scanner {
     pub fn host_functions(&self) -> Result<vec::Vec<String>, JsError> {
         let mut host_functions: Vec<String> = Vec::new();
 
+        for payload in Parser::new(0).parse_all(&self.wast) {
+            let payload = payload.map_err(|e| JsError::new(&e.to_string()))?;
+
+            match payload {
+                Payload::ImportSection(import_section) => {
+                    for import_item in import_section {
+                        let import_item = import_item.map_err(|e| JsError::new(&e.to_string()))?;
+
+                        if import_item.module == "massa" {
+                            if let TypeRef::Func(_) = import_item.ty {
+                                host_functions.push(import_item.name.to_string());
+                            }
+                        }
+                    }
+                },
+                _ => {}
+            }
+        }
+
         Ok(host_functions)
-    }
-
-    pub fn constants(&self) -> Result<vec::Vec<String>, JsError> {
-        let mut constants: Vec<String> = Vec::new();
-
-        Ok(constants)
     }
 }
