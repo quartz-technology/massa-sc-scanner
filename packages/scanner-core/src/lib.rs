@@ -7,13 +7,17 @@ use wasmprinter::print_bytes;
 use wasm_bindgen::prelude::*;
 use wasmparser::*;
 
+/// This represents a Massa smart contract scanner.
+/// It is used to scan and look for exported functions and host functions.
 #[wasm_bindgen]
 pub struct Scanner {
+    /// The WebAssembly text representation.
     wast: Vec<u8>,
 }
 
 #[wasm_bindgen]
 impl Scanner {
+    /// Creates a new scanner using the wasm file content.
     #[wasm_bindgen(constructor)]
     pub fn new(input: Vec<u8>) -> Result<Scanner, JsError> {
         let wat = print_bytes(input.clone()).map_err(|e| JsError::new(&e.to_string()))?;
@@ -22,6 +26,7 @@ impl Scanner {
         Ok(Scanner { wast })
     }
 
+    /// Searches for exported function names in the smart contract.
     pub fn exported_function_names(&self) -> Result<vec::Vec<String>, JsError> {
         let mut exported_function_names: Vec<String> = Vec::new();
 
@@ -45,25 +50,23 @@ impl Scanner {
         Ok(exported_function_names)
     }
 
+    /// Searches for host function names in the smart contract.
     pub fn host_functions(&self) -> Result<vec::Vec<String>, JsError> {
         let mut host_functions: Vec<String> = Vec::new();
 
         for payload in Parser::new(0).parse_all(&self.wast) {
             let payload = payload.map_err(|e| JsError::new(&e.to_string()))?;
 
-            match payload {
-                Payload::ImportSection(import_section) => {
-                    for import_item in import_section {
-                        let import_item = import_item.map_err(|e| JsError::new(&e.to_string()))?;
+            if let Payload::ImportSection(import_section) = payload {
+                for import_item in import_section {
+                    let import_item = import_item.map_err(|e| JsError::new(&e.to_string()))?;
 
-                        if import_item.module == "massa" {
-                            if let TypeRef::Func(_) = import_item.ty {
-                                host_functions.push(import_item.name.to_string());
-                            }
+                    if import_item.module == "massa" {
+                        if let TypeRef::Func(_) = import_item.ty {
+                            host_functions.push(import_item.name.to_string());
                         }
                     }
-                },
-                _ => {}
+                }
             }
         }
 
