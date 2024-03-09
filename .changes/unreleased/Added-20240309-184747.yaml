@@ -1,0 +1,6 @@
+kind: Added
+body: Implemented scanner methods in wasm
+time: 2024-03-09T18:47:47.958688+01:00
+custom:
+  Author: 0xpanoramix
+  PR: "3"
