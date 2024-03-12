@@ -1,4 +1,4 @@
-name: Scanner Core CI
+name: Scanner Sdk CI
 
 on:
   push:
