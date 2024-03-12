@@ -19,7 +19,11 @@ Cover by [DALL-E](https://openai.com/dall-e-3/).
 
 ## Introduction
 
-Coming soon.
+This repository is a scanner of massa smart contracts to extract some valuable informations from bytecode.
+
+It contains two packages:
+- the [scanner-core](./packages/scanner-core/README.md)
+- the [scanner-sdk](./packages/scanner-sdk/README.md)
 
 ## Contributing
 
